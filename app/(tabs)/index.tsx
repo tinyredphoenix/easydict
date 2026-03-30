@@ -23,8 +23,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import Constants from 'expo-constants';
-import * as ExpoSpeechRecognition from 'expo-speech-recognition';
 
 import { useTheme } from '@/hooks/useTheme';
 import { Typography } from '@/constants/Typography';
@@ -81,44 +79,15 @@ export default function SearchScreen() {
   }, []);
 
   // ── Voice Search ──────────────────────────────────────────────────────────
+  // NOTE: expo-speech-recognition requires a custom dev build (not Expo Go).
+  // Voice search will be fully enabled in Alpha 4 when we build a dev build.
   const handleVoice = useCallback(async () => {
-    if (isListening) {
-      await ExpoSpeechRecognition.ExpoSpeechRecognitionModule.abort();
-      setIsListening(false);
-      return;
-    }
-
-    const { status } = await ExpoSpeechRecognition.ExpoSpeechRecognitionModule.requestPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Microphone needed', 'Please allow microphone access to use voice search.');
-      return;
-    }
-
-    setIsListening(true);
-
-    ExpoSpeechRecognition.ExpoSpeechRecognitionModule.start({
-      lang: 'en-US',
-      interimResults: false,
-      maxAlternatives: 1,
-    });
-
-    ExpoSpeechRecognition.ExpoSpeechRecognitionModule.addListener('result', (event) => {
-      const recognized = event.results?.[0]?.transcript ?? '';
-      if (recognized) {
-        setQuery(recognized);
-        handleSearch(recognized);
-      }
-      setIsListening(false);
-    });
-
-    ExpoSpeechRecognition.ExpoSpeechRecognitionModule.addListener('end', () => {
-      setIsListening(false);
-    });
-
-    ExpoSpeechRecognition.ExpoSpeechRecognitionModule.addListener('error', () => {
-      setIsListening(false);
-    });
-  }, [isListening, handleSearch]);
+    Alert.alert(
+      '🎙 Voice Search',
+      'Voice search is coming in the next update! For now, type the word you want to look up.',
+      [{ text: 'Got it', style: 'default' }]
+    );
+  }, []);
 
   const styles = makeStyles(theme, insets);
 
@@ -205,7 +174,7 @@ export default function SearchScreen() {
               <Text style={styles.emptyEmoji}>📖</Text>
               <Text style={styles.emptyTitle}>Look up any word</Text>
               <Text style={styles.emptyBody}>
-                Type or speak any English word to get a super-simple explanation, an example sentence, and its Hindi translation.
+                Type any English word to get a super-simple explanation, an example sentence, and its Hindi translation.
               </Text>
             </View>
           )}
